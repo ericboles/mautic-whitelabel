@@ -89,7 +89,7 @@ class WhitelabelCommand extends BaseCommand
 
     private function createSystemTheme(string $projectRootPath, string $mauticWebRoot): string
     {
-        $mauticThemesPath = $projectRootPath.'/'.$mauticWebRoot.'themes';
+        $mauticThemesPath = $projectRootPath.'/'.$mauticWebRoot.'/themes';
         if (!is_dir($mauticThemesPath)) {
             throw new \RuntimeException("Mautic themes directory not found!");
         }
@@ -106,7 +106,7 @@ class WhitelabelCommand extends BaseCommand
     {
         // Login page
         // app/bundles/UserBundle/Resources/views/Security/base.html.twig
-        $mauticLoginViewTemplatePath = $projectRootPath.'/'.$mauticWebRoot.'app/bundles/UserBundle/Resources/views/Security';
+        $mauticLoginViewTemplatePath = $projectRootPath.'/'.$mauticWebRoot.'/app/bundles/UserBundle/Resources/views/Security';
         $output->writeln("mauticLoginViewTemplatePath: {$mauticLoginViewTemplatePath}");
         $overrideLoginViewTemplatePath = $mauticSystemThemePath.'/UserBundle/Resources/views/Security';
         $output->writeln("overrideLoginViewTemplatePath: {$overrideLoginViewTemplatePath}");
@@ -149,7 +149,7 @@ class WhitelabelCommand extends BaseCommand
     {
         // Navbar template
         // app/bundles/CoreBundle/Resources/views/Default/navbar.html.twig
-        $mauticNavbarViewTemplatePath = $projectRootPath.'/'.$mauticWebRoot.'app/bundles/CoreBundle/Resources/views/Default';
+        $mauticNavbarViewTemplatePath = $projectRootPath.'/'.$mauticWebRoot.'/app/bundles/CoreBundle/Resources/views/Default';
         $output->writeln("mauticNavbarViewTemplatePath: {$mauticNavbarViewTemplatePath}");
         $overrideNavbarViewTemplatePath = $mauticSystemThemePath.'/CoreBundle/Resources/views/Default';
         $output->writeln("overrideNavbarViewTemplatePath: {$overrideNavbarViewTemplatePath}");
