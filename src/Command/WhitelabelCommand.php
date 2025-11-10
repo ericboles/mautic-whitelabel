@@ -187,15 +187,11 @@ class WhitelabelCommand extends BaseCommand
         $sidebarLogoMarginRight = $whitelabel['sidebar_logo_margin_right'] ?? '0';
         
         if (!empty($sidebarLogo)) {
-            // Replace desktop logo (hidden-xs = desktop only)
+            // Replace everything inside the mautic-brand anchor tag
             $desktopLogoHTML = '<img src="'.$sidebarLogo.'" style="width: '.$sidebarLogoWidth.'px; margin: '.$sidebarLogoMarginTop.'px '.$sidebarLogoMarginRight.'px 0 '.$sidebarLogoMarginLeft.'px;" />';
-            $desktopPattern = '/(<div[^>]*class="[^"]*mautic-brand[^"]*hidden-xs[^"]*"[^>]*>)(.*?)(<\/div>)/is';
-            $content = preg_replace($desktopPattern, '$1'.$desktopLogoHTML.'$3', $content);
-            
-            // Replace mobile logo (visible-xs = mobile only)
-            $mobileLogoHTML = '<img src="'.$sidebarLogo.'" style="width: 40px; margin: 0;" />';
-            $mobilePattern = '/(<div[^>]*class="[^"]*mautic-brand[^"]*visible-xs[^"]*"[^>]*>)(.*?)(<\/div>)/is';
-            $content = preg_replace($mobilePattern, '$1'.$mobileLogoHTML.'$3', $content);
+            $pattern = '/(<a[^>]*class="[^"]*mautic-brand[^"]*"[^>]*>)(.*?)(<\/a>)/is';
+            $replacement = '$1'.$desktopLogoHTML.'$3';
+            $content = preg_replace($pattern, $replacement, $content);
             
             if (file_put_contents($path, $content) === false) {
                 throw new \RuntimeException('Error writing to the override navbar view template file');
