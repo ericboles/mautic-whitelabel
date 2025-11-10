@@ -187,14 +187,14 @@ class WhitelabelCommand extends BaseCommand
         $sidebarLogoMarginRight = $whitelabel['sidebar_logo_margin_right'] ?? '0';
         
         if (!empty($sidebarLogo)) {
-            // Replace desktop logo (logo--expanded.svg)
+            // Replace desktop logo (brand-logo--desktop mautic-brand)
             $desktopLogoHTML = '<img src="'.$sidebarLogo.'" style="width: '.$sidebarLogoWidth.'px; margin: '.$sidebarLogoMarginTop.'px '.$sidebarLogoMarginRight.'px 0 '.$sidebarLogoMarginLeft.'px;" />';
-            $desktopPattern = '/(<div class="brand-logo--desktop[^"]*"[^>]*>)(.*?)(<\/div>)/is';
+            $desktopPattern = '/(<div[^>]*class="[^"]*brand-logo--desktop[^"]*"[^>]*>)(.*?)(<\/div>)/is';
             $content = preg_replace($desktopPattern, '$1'.$desktopLogoHTML.'$3', $content);
             
-            // Replace mobile logo (logo--minimized.svg)
+            // Replace mobile logo (brand-logo--mobile mautic-brand)
             $mobileLogoHTML = '<img src="'.$sidebarLogo.'" style="width: 40px; margin: 0;" />';
-            $mobilePattern = '/(<div class="brand-logo--mobile[^"]*"[^>]*>)(.*?)(<\/div>)/is';
+            $mobilePattern = '/(<div[^>]*class="[^"]*brand-logo--mobile[^"]*"[^>]*>)(.*?)(<\/div>)/is';
             $content = preg_replace($mobilePattern, '$1'.$mobileLogoHTML.'$3', $content);
             
             if (file_put_contents($path, $content) === false) {
