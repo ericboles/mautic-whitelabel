@@ -39,7 +39,7 @@ class WhitelabelCommand extends BaseCommand
             $mauticWebRoot = $extra['mautic-scaffold']['locations']['web-root'];
         } else {
             // Default to standard Mautic structure
-            $mauticWebRoot = 'docroot';
+            $mauticWebRoot = '.';
         }
         $output->writeln("Mautic web-root path: $mauticWebRoot");
 
