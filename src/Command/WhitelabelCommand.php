@@ -37,11 +37,11 @@ class WhitelabelCommand extends BaseCommand
         $extra = $composer->getPackage()->getExtra();
         if (isset($extra['mautic-scaffold'], $extra['mautic-scaffold']['locations'], $extra['mautic-scaffold']['locations']['web-root'])) {
             $mauticWebRoot = $extra['mautic-scaffold']['locations']['web-root'];
-            $output->writeln("Mautic web-root path: $mauticWebRoot");
         } else {
-            $output->writeln("<error>web-root path not defined in composer.json.</error>");
-            return Command::SUCCESS;
+            // Default to standard Mautic structure
+            $mauticWebRoot = 'docroot';
         }
+        $output->writeln("Mautic web-root path: $mauticWebRoot");
 
         try {
             $mauticSystemThemePath = $this->createSystemTheme($projectRootPath, $mauticWebRoot);
