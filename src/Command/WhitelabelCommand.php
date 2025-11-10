@@ -182,13 +182,14 @@ class WhitelabelCommand extends BaseCommand
         // Build the new sidebar logo HTML using whitelabel config
         $sidebarLogo = $whitelabel['sidebar_logo'] ?? '';
         $sidebarLogoWidth = $whitelabel['sidebar_logo_width'] ?? '130';
+        $sidebarLogoHeight = $whitelabel['sidebar_logo_height'] ?? 'auto';
         $sidebarLogoMarginTop = $whitelabel['sidebar_logo_margin_top'] ?? '0';
         $sidebarLogoMarginLeft = $whitelabel['sidebar_logo_margin_left'] ?? '0';
         $sidebarLogoMarginRight = $whitelabel['sidebar_logo_margin_right'] ?? '0';
         
         if (!empty($sidebarLogo)) {
             // Replace everything inside the mautic-brand anchor tag
-            $desktopLogoHTML = '<img src="'.$sidebarLogo.'" style="width: '.$sidebarLogoWidth.'px; margin: '.$sidebarLogoMarginTop.'px '.$sidebarLogoMarginRight.'px 0 '.$sidebarLogoMarginLeft.'px;" />';
+            $desktopLogoHTML = '<img src="'.$sidebarLogo.'" style="width: '.$sidebarLogoWidth.'px; height: '.$sidebarLogoHeight.'px; margin: '.$sidebarLogoMarginTop.'px '.$sidebarLogoMarginRight.'px 0 '.$sidebarLogoMarginLeft.'px; border-radius: 0;" />';
             $pattern = '/(<a[^>]*class="[^"]*mautic-brand[^"]*"[^>]*>)(.*?)(<\/a>)/is';
             $replacement = '$1'.$desktopLogoHTML.'$3';
             $content = preg_replace($pattern, $replacement, $content);
