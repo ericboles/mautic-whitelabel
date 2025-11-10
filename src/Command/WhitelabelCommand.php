@@ -47,6 +47,8 @@ class WhitelabelCommand extends BaseCommand
             $mauticSystemThemePath = $this->createSystemTheme($projectRootPath, $mauticWebRoot);
             $this->copyLoginViewTemplate($projectRootPath, $mauticWebRoot, $mauticSystemThemePath, $output);
             $this->overrideLoginViewTemplate($mauticSystemThemePath, $whitelabel);
+            $this->copyNavbarViewTemplate($projectRootPath, $mauticWebRoot, $mauticSystemThemePath, $output);
+            $this->overrideNavbarViewTemplate($mauticSystemThemePath, $whitelabel);
             $this->clearMauticCache($projectRootPath);
         } catch (\RuntimeException $e) {
             $output->writeln(sprintf("<error>%s</error>", $e->getMessage()));
@@ -124,12 +126,80 @@ class WhitelabelCommand extends BaseCommand
     {
         $path = $mauticSystemThemePath.'/UserBundle/Resources/views/Security/base.html.twig';
         $content = file_get_contents($path);
-        $newInnerHTML = '<img src="{{ LOGIN_LOGO }}" style="width: {{ LOGIN_LOGO_WIDTH }}px; margin: {{ LOGIN_LOGO_MARGIN_TOP }}px 0 {{ LOGIN_LOGO_MARGIN_BOTTOM }}px 0;" />';
-        $pattern = '/(<div[^>]*class\s*=\s*["\'][^"\']*\bmautic-logo\b[^"\']*["\'][^>]*>)(.*?)(<\/div>)/is';
-        $replacement = '$1test$3';
-        $newContent = preg_replace($pattern, $replacement, $content);
-        if (file_put_contents($path, $newContent) === false) {
-            throw new \RuntimeException('Error writing to the override login view template file');
+        
+        // Build the new logo HTML using whitelabel config
+        $loginLogo = $whitelabel['login_logo'] ?? '';
+        $loginLogoWidth = $whitelabel['login_logo_width'] ?? '200';
+        $loginLogoMarginTop = $whitelabel['login_logo_margin_top'] ?? '0';
+        $loginLogoMarginBottom = $whitelabel['login_logo_margin_bottom'] ?? '0';
+        
+        if (!empty($loginLogo)) {
+            $newInnerHTML = '<img src="'.$loginLogo.'" style="width: '.$loginLogoWidth.'px; margin: '.$loginLogoMarginTop.'px 0 '.$loginLogoMarginBottom.'px 0;" />';
+            $pattern = '/(<div[^>]*class\s*=\s*["\'][^"\']*\bmautic-logo\b[^"\']*["\'][^>]*>)(.*?)(<\/div>)/is';
+            $replacement = '$1'.$newInnerHTML.'$3';
+            $newContent = preg_replace($pattern, $replacement, $content);
+            
+            if (file_put_contents($path, $newContent) === false) {
+                throw new \RuntimeException('Error writing to the override login view template file');
+            }
+        }
+    }
+
+    private function copyNavbarViewTemplate(string $projectRootPath, string $mauticWebRoot, string $mauticSystemThemePath, OutputInterface $output): void
+    {
+        // Navbar template
+        // app/bundles/CoreBundle/Resources/views/Default/navbar.html.twig
+        $mauticNavbarViewTemplatePath = $projectRootPath.'/'.$mauticWebRoot.'app/bundles/CoreBundle/Resources/views/Default';
+        $output->writeln("mauticNavbarViewTemplatePath: {$mauticNavbarViewTemplatePath}");
+        $overrideNavbarViewTemplatePath = $mauticSystemThemePath.'/CoreBundle/Resources/views/Default';
+        $output->writeln("overrideNavbarViewTemplatePath: {$overrideNavbarViewTemplatePath}");
+
+        // Create directory for overriding view template
+        if (!is_dir($overrideNavbarViewTemplatePath)) {
+            mkdir($overrideNavbarViewTemplatePath, $permissions = 0777, $recursive = true);
+        }
+
+        if (!is_dir($overrideNavbarViewTemplatePath)) {
+            throw new \RuntimeException("Creating themes/system/CoreBundle/Resources/views/Default directory was not successful");
+        }
+
+        // Copy view template file to override
+        if (file_exists($mauticNavbarViewTemplatePath.'/navbar.html.twig')) {
+            copy($mauticNavbarViewTemplatePath.'/navbar.html.twig', $overrideNavbarViewTemplatePath.'/navbar.html.twig');
+        }
+    }
+
+    private function overrideNavbarViewTemplate(string $mauticSystemThemePath, array $whitelabel): void
+    {
+        $path = $mauticSystemThemePath.'/CoreBundle/Resources/views/Default/navbar.html.twig';
+        
+        if (!file_exists($path)) {
+            return; // Skip if navbar template doesn't exist
+        }
+        
+        $content = file_get_contents($path);
+        
+        // Build the new sidebar logo HTML using whitelabel config
+        $sidebarLogo = $whitelabel['sidebar_logo'] ?? '';
+        $sidebarLogoWidth = $whitelabel['sidebar_logo_width'] ?? '130';
+        $sidebarLogoMarginTop = $whitelabel['sidebar_logo_margin_top'] ?? '0';
+        $sidebarLogoMarginLeft = $whitelabel['sidebar_logo_margin_left'] ?? '0';
+        $sidebarLogoMarginRight = $whitelabel['sidebar_logo_margin_right'] ?? '0';
+        
+        if (!empty($sidebarLogo)) {
+            // Replace desktop logo (logo--expanded.svg)
+            $desktopLogoHTML = '<img src="'.$sidebarLogo.'" style="width: '.$sidebarLogoWidth.'px; margin: '.$sidebarLogoMarginTop.'px '.$sidebarLogoMarginRight.'px 0 '.$sidebarLogoMarginLeft.'px;" />';
+            $desktopPattern = '/(<div class="brand-logo--desktop[^"]*"[^>]*>)(.*?)(<\/div>)/is';
+            $content = preg_replace($desktopPattern, '$1'.$desktopLogoHTML.'$3', $content);
+            
+            // Replace mobile logo (logo--minimized.svg)
+            $mobileLogoHTML = '<img src="'.$sidebarLogo.'" style="width: 40px; margin: 0;" />';
+            $mobilePattern = '/(<div class="brand-logo--mobile[^"]*"[^>]*>)(.*?)(<\/div>)/is';
+            $content = preg_replace($mobilePattern, '$1'.$mobileLogoHTML.'$3', $content);
+            
+            if (file_put_contents($path, $content) === false) {
+                throw new \RuntimeException('Error writing to the override navbar view template file');
+            }
         }
     }
 
